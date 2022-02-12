@@ -12,23 +12,20 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
+    container:
+      image: rameshmarisa/wsl-kernel:latest
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Checkout the code
         uses: actions/checkout@v2
 
-      - name: Build docker image
-        run: |
-          docker build -t wsl_kernel:latest - < Dockerfile
-
       - name: Build wsl linux kernel
         run: |
-          mkdir -p output
-          docker run -v ${{ github.workspace }}/output:/src/arch/x86/boot wsl_kernel:latest make KCONFIG_CONFIG=Microsoft/config-wsl
-
+          make -j2 KCONFIG_CONFIG=Microsoft/config-wsl 
+          
       - name: artifact bzImage
         uses: actions/upload-artifact@v2
         with:
+          name: bzImage
           path: |
-            output/bzImage
+            src/arch/x86/boot/bzImage
